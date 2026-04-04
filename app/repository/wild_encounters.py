@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from app.models.wild_encounters import WildEncounters
+from app.schemas.read_full import WildEncountersReadFull
 from app.schemas.wild_encounters import WildEncountersRead
 
 if TYPE_CHECKING:
@@ -37,27 +38,27 @@ class WildEncountersRepository:
     @staticmethod
     def read_by_id(
         db: Session, wild_encounters_id: int
-    ) -> Optional[WildEncountersRead]:
+    ) -> Optional[WildEncountersReadFull]:
         wild_encounters = (
             db.query(WildEncounters)
             .filter(WildEncounters.id == wild_encounters_id)
             .first()
         )
         if wild_encounters:
-            return WildEncountersRead.model_validate(wild_encounters)
+            return WildEncountersReadFull.model_validate(wild_encounters)
         return None
 
     @staticmethod
     def read_by_pokemon_id(
         db: Session, pokemon_id: int
-    ) -> list[WildEncountersRead]:
+    ) -> list[WildEncountersReadFull]:
         wild_encounters = (
             db.query(WildEncounters)
             .filter(WildEncounters.id_pokemon == pokemon_id)
             .all()
         )
         return [
-            WildEncountersRead.model_validate(encounter)
+            WildEncountersReadFull.model_validate(encounter)
             for encounter in wild_encounters
         ]
 
