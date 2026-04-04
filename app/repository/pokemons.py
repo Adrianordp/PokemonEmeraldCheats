@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from app.models.pokemons import Pokemons
+from app.schemas.pokemons import PokemonRead
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -12,30 +13,37 @@ if TYPE_CHECKING:
 
 class PokemonsRepository:
     @staticmethod
-    def create(db: Session, pokemon: PokemonCreate) -> Pokemons:
+    def create(db: Session, pokemon: PokemonCreate) -> PokemonRead:
         data = pokemon.model_dump(exclude_unset=True)
         db_pokemon = Pokemons(**data)
         db.add(db_pokemon)
         db.commit()
         db.refresh(db_pokemon)
-        return db_pokemon
+        return PokemonRead.model_validate(db_pokemon)
 
     @staticmethod
-    def read_all(db: Session) -> list[Pokemons]:
-        return db.query(Pokemons).all()
+    def read_all(db: Session) -> list[PokemonRead]:
+        pokemons = db.query(Pokemons).all()
+        return [PokemonRead.model_validate(pokemon) for pokemon in pokemons]
 
     @staticmethod
-    def read_by_id(db: Session, pokemon_id: int) -> Optional[Pokemons]:
-        return db.query(Pokemons).filter(Pokemons.id == pokemon_id).first()
+    def read_by_id(db: Session, pokemon_id: int) -> Optional[PokemonRead]:
+        pokemon = db.query(Pokemons).filter(Pokemons.id == pokemon_id).first()
+        if pokemon:
+            return PokemonRead.model_validate(pokemon)
+        return None
 
     @staticmethod
-    def read_by_name(db: Session, name: str) -> Optional[Pokemons]:
-        return db.query(Pokemons).filter(Pokemons.name == name).first()
+    def read_by_name(db: Session, name: str) -> Optional[PokemonRead]:
+        pokemon = db.query(Pokemons).filter(Pokemons.name == name).first()
+        if pokemon:
+            return PokemonRead.model_validate(pokemon)
+        return None
 
     @staticmethod
     def update(
         db: Session, pokemon_id: int, pokemon: PokemonUpdate
-    ) -> Optional[Pokemons]:
+    ) -> Optional[PokemonRead]:
         db_pokemon = (
             db.query(Pokemons).filter(Pokemons.id == pokemon_id).first()
         )
@@ -49,7 +57,7 @@ class PokemonsRepository:
 
         db.commit()
         db.refresh(db_pokemon)
-        return db_pokemon
+        return PokemonRead.model_validate(db_pokemon)
 
     @staticmethod
     def delete(db: Session, pokemon_id: int) -> bool:
