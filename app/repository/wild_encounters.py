@@ -40,6 +40,16 @@ class WildEncountersRepository:
         )
 
     @staticmethod
+    def read_by_pokemon_id(
+        db: Session, pokemon_id: int
+    ) -> list[WildEncounters]:
+        return (
+            db.query(WildEncounters)
+            .filter(WildEncounters.id_pokemon == pokemon_id)
+            .all()
+        )
+
+    @staticmethod
     def update(
         db: Session,
         wild_encounters_id: int,
