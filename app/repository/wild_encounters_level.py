@@ -40,6 +40,14 @@ class WildEncountersLevelRepository:
         )
 
     @staticmethod
+    def read_by_level(db: Session, level: int) -> Optional[WildEncountersLevel]:
+        return (
+            db.query(WildEncountersLevel)
+            .filter(WildEncountersLevel.level == level)
+            .first()
+        )
+
+    @staticmethod
     def update(
         db: Session,
         wild_encounters_level_id: int,
