@@ -48,12 +48,10 @@ def get_level_cheat(level: int) -> str:
 
 def main():
     """Main function to execute the import process."""
-    pokemon_name = "pikachu"
+    name = "pikachu"
     try:
-        cheat_codes = get_pokemon_encounter_cheat(pokemon_name)
-        print(
-            f"Cheat codes for pokemon '{pokemon_name}': {', '.join(cheat_codes)}"
-        )
+        cheat_codes = get_pokemon_encounter_cheat(name)
+        print(f"Cheat codes for pokemon '{name}': {', '.join(cheat_codes)}")
     except ValueError as e:
         print(e)
 
