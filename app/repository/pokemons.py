@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from app.models.pokemons import Pokemons
 from app.schemas.pokemons import PokemonRead
+from app.schemas.read_full import PokemonReadFull
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -27,17 +28,17 @@ class PokemonsRepository:
         return [PokemonRead.model_validate(pokemon) for pokemon in pokemons]
 
     @staticmethod
-    def read_by_id(db: Session, pokemon_id: int) -> Optional[PokemonRead]:
+    def read_by_id(db: Session, pokemon_id: int) -> Optional[PokemonReadFull]:
         pokemon = db.query(Pokemons).filter(Pokemons.id == pokemon_id).first()
         if pokemon:
-            return PokemonRead.model_validate(pokemon)
+            return PokemonReadFull.model_validate(pokemon)
         return None
 
     @staticmethod
-    def read_by_name(db: Session, name: str) -> Optional[PokemonRead]:
+    def read_by_name(db: Session, name: str) -> Optional[PokemonReadFull]:
         pokemon = db.query(Pokemons).filter(Pokemons.name == name).first()
         if pokemon:
-            return PokemonRead.model_validate(pokemon)
+            return PokemonReadFull.model_validate(pokemon)
         return None
 
     @staticmethod
