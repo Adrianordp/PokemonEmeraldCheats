@@ -18,6 +18,6 @@ class Pokemons(Base):
 
     name: Mapped[str] = mapped_column(String(255), unique=True)
 
-    wild_encounters: Mapped[list["WildEncounters"]] = relationship(
+    wild_encounters: Mapped[list[WildEncounters]] = relationship(
         "WildEncounters", back_populates="pokemon"
     )
