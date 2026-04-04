@@ -3,9 +3,11 @@ from collections.abc import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///db.sqlite"
+from app.core.config import settings
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+DATABASE_URL = settings.DATABASE_URL
+
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
