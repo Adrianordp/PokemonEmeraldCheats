@@ -8,3 +8,11 @@ wheels/
 
 # Virtual environments
 .venv
+
+# IDE-specific files
+.vscode/
+
+# Logs and databases
+*.log
+*.db
+*.sqlite
