@@ -8,10 +8,6 @@ import json
 from app.core.database import get_db
 from app.repository.pokemons import PokemonsRepository
 
-# from app.repository.wild_encounters import (
-#     WildEncountersRepository,  # noqa: F401
-# )
-
 
 def get_pokemon_cheats(pokemon_name: str) -> dict[str, list[str]]:
     """Get all cheat codes related to a specific pokemon."""
