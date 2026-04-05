@@ -39,6 +39,7 @@ class PokemonsRepository:
 
         if pokemon:
             return PokemonReadFull.model_validate(pokemon)
+
         return None
 
     @staticmethod
