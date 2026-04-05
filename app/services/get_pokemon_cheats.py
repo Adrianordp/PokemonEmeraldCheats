@@ -12,23 +12,24 @@ from app.repository.pokemons import PokemonsRepository
 def get_pokemon_cheats(pokemon_name: str) -> dict[str, list[str]]:
     """Get all cheat codes related to a specific pokemon."""
     db = next(get_db())
-    pokemon = PokemonsRepository.read_by_name(db, pokemon_name.upper())
+    pokemons = PokemonsRepository.read_by_name_fragment(
+        db, pokemon_name.upper()
+    )
 
-    if not pokemon:
+    if not pokemons:
         raise ValueError(f"No pokemon found with name '{pokemon_name}'")
 
-    pokemon_data = pokemon.model_dump()
+    cheats: dict[str, list[str]] = {}
 
-    pokemon_data.pop("id", None)
-    pokemon_data.pop("name", None)
+    for pokemon in pokemons:
+        pokemon_name = pokemon.name
 
-    cheats = {}
+        if pokemon.wild_encounters:
+            cheats[pokemon_name] = []
 
-    if pokemon_data.get("wild_encounters"):
-        cheats["wild_encounters"] = []
-        for encounter in pokemon_data["wild_encounters"]:
-            if encounter.get("code"):
-                cheats["wild_encounters"].append(encounter["code"])
+            for encounter in pokemon.wild_encounters:
+                if encounter.code:
+                    cheats[pokemon_name].append(encounter.code)
 
     return cheats
 
