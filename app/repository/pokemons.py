@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import select
+
 from app.models.pokemons import Pokemons
 from app.schemas.pokemons import PokemonRead
 from app.schemas.read_full import PokemonReadFull
@@ -25,13 +27,15 @@ class PokemonsRepository:
 
     @staticmethod
     def read_all(db: Session) -> list[PokemonRead]:
-        pokemons = db.query(Pokemons).all()
+        stmt = select(Pokemons)
+        pokemons = db.execute(stmt).scalars().all()
 
         return [PokemonRead.model_validate(pokemon) for pokemon in pokemons]
 
     @staticmethod
     def read_by_id(db: Session, pokemon_id: int) -> Optional[PokemonReadFull]:
-        pokemon = db.query(Pokemons).filter(Pokemons.id == pokemon_id).first()
+        stmt = select(Pokemons).filter(Pokemons.id == pokemon_id)
+        pokemon = db.execute(stmt).scalars().first()
 
         if pokemon:
             return PokemonReadFull.model_validate(pokemon)
@@ -39,7 +43,8 @@ class PokemonsRepository:
 
     @staticmethod
     def read_by_name(db: Session, name: str) -> Optional[PokemonReadFull]:
-        pokemon = db.query(Pokemons).filter(Pokemons.name == name).first()
+        stmt = select(Pokemons).filter(Pokemons.name == name)
+        pokemon = db.execute(stmt).scalars().first()
 
         if pokemon:
             return PokemonReadFull.model_validate(pokemon)
@@ -50,9 +55,8 @@ class PokemonsRepository:
     def update(
         db: Session, pokemon_id: int, pokemon: PokemonUpdate
     ) -> Optional[PokemonRead]:
-        db_pokemon = (
-            db.query(Pokemons).filter(Pokemons.id == pokemon_id).first()
-        )
+        stmt = select(Pokemons).filter(Pokemons.id == pokemon_id)
+        db_pokemon = db.execute(stmt).scalars().first()
 
         if not db_pokemon:
             return None
@@ -69,9 +73,8 @@ class PokemonsRepository:
 
     @staticmethod
     def delete(db: Session, pokemon_id: int) -> bool:
-        db_pokemon = (
-            db.query(Pokemons).filter(Pokemons.id == pokemon_id).first()
-        )
+        stmt = select(Pokemons).filter(Pokemons.id == pokemon_id)
+        db_pokemon = db.execute(stmt).scalars().first()
 
         if not db_pokemon:
             return False
