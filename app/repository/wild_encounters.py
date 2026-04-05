@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import select
+
 from app.models.wild_encounters import WildEncounters
 from app.schemas.read_full import WildEncountersReadFull
 from app.schemas.wild_encounters import WildEncountersRead
@@ -25,11 +27,14 @@ class WildEncountersRepository:
         db.add(db_wild_encounters)
         db.commit()
         db.refresh(db_wild_encounters)
+
         return WildEncountersRead.model_validate(db_wild_encounters)
 
     @staticmethod
     def read_all(db: Session) -> list[WildEncountersRead]:
-        wild_encounters = db.query(WildEncounters).all()
+        stmt = select(WildEncounters)
+        wild_encounters = db.execute(stmt).scalars().all()
+
         return [
             WildEncountersRead.model_validate(encounter)
             for encounter in wild_encounters
@@ -39,24 +44,25 @@ class WildEncountersRepository:
     def read_by_id(
         db: Session, wild_encounters_id: int
     ) -> Optional[WildEncountersReadFull]:
-        wild_encounters = (
-            db.query(WildEncounters)
-            .filter(WildEncounters.id == wild_encounters_id)
-            .first()
+        stmt = select(WildEncounters).filter(
+            WildEncounters.id == wild_encounters_id
         )
+        wild_encounters = db.execute(stmt).scalars().first()
+
         if wild_encounters:
             return WildEncountersReadFull.model_validate(wild_encounters)
+
         return None
 
     @staticmethod
     def read_by_pokemon_id(
         db: Session, pokemon_id: int
     ) -> list[WildEncountersReadFull]:
-        wild_encounters = (
-            db.query(WildEncounters)
-            .filter(WildEncounters.id_pokemon == pokemon_id)
-            .all()
+        stmt = select(WildEncounters).filter(
+            WildEncounters.id_pokemon == pokemon_id
         )
+        wild_encounters = db.execute(stmt).scalars().all()
+
         return [
             WildEncountersReadFull.model_validate(encounter)
             for encounter in wild_encounters
@@ -68,11 +74,11 @@ class WildEncountersRepository:
         wild_encounters_id: int,
         wild_encounters: WildEncountersUpdate,
     ) -> Optional[WildEncountersRead]:
-        db_wild_encounters = (
-            db.query(WildEncounters)
-            .filter(WildEncounters.id == wild_encounters_id)
-            .first()
+        stmt = select(WildEncounters).filter(
+            WildEncounters.id == wild_encounters_id
         )
+        db_wild_encounters = db.execute(stmt).scalars().first()
+
         if not db_wild_encounters:
             return None
 
@@ -83,17 +89,20 @@ class WildEncountersRepository:
 
         db.commit()
         db.refresh(db_wild_encounters)
+
         return WildEncountersRead.model_validate(db_wild_encounters)
 
     @staticmethod
     def delete(db: Session, wild_encounters_id: int) -> bool:
-        db_wild_encounters = (
-            db.query(WildEncounters)
-            .filter(WildEncounters.id == wild_encounters_id)
-            .first()
+        stmt = select(WildEncounters).filter(
+            WildEncounters.id == wild_encounters_id
         )
+        db_wild_encounters = db.execute(stmt).scalars().first()
+
         if not db_wild_encounters:
             return False
+
         db.delete(db_wild_encounters)
         db.commit()
+
         return True
