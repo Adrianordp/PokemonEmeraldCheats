@@ -9,20 +9,29 @@ from app.core.database import get_db
 from app.repository.pokemons import PokemonsRepository
 
 
-def get_pokemon_encounter_cheat(pokemon_name: str) -> list[str]:
+def get_pokemon_encounter_cheat(pokemon_name: str) -> dict[str, list[str]]:
     """Get the cheat codes for a specific pokemon."""
     db = next(get_db())
-    pokemon = PokemonsRepository.read_by_name(db, pokemon_name.upper())
+    pokemons = PokemonsRepository.read_by_name_fragment(
+        db, pokemon_name.upper()
+    )
 
-    if not pokemon:
+    if not pokemons:
         raise ValueError(f"No pokemon found with name '{pokemon_name}'")
 
-    if not pokemon.wild_encounters:
-        raise ValueError(
-            f"No wild encounters found for pokemon '{pokemon_name}'"
-        )
+    codes: dict[str, list[str]] = {}
 
-    return [encounter.code for encounter in pokemon.wild_encounters]
+    for pokemon in pokemons:
+        pokemon_name = pokemon.name
+
+        if pokemon.wild_encounters:
+            codes[pokemon_name] = []
+
+            for encounter in pokemon.wild_encounters:
+                if encounter.code:
+                    codes[pokemon_name].append(encounter.code)
+
+    return codes
 
 
 def main():
