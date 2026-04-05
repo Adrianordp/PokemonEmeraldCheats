@@ -44,13 +44,20 @@ class PokemonsRepository:
 
     @staticmethod
     def read_by_name(db: Session, name: str) -> Optional[PokemonReadFull]:
-        stmt = select(Pokemons).filter(Pokemons.name == name)
+        stmt = select(Pokemons).where(Pokemons.name.like(f"{name}%"))
         pokemon = db.execute(stmt).scalars().first()
 
         if pokemon:
             return PokemonReadFull.model_validate(pokemon)
 
         return None
+
+    @staticmethod
+    def read_by_name_fragment(db: Session, name: str) -> list[PokemonReadFull]:
+        stmt = select(Pokemons).where(Pokemons.name.like(f"{name}%"))
+        pokemons = db.execute(stmt).scalars().all()
+
+        return [PokemonReadFull.model_validate(pokemon) for pokemon in pokemons]
 
     @staticmethod
     def update(
