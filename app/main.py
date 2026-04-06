@@ -12,12 +12,13 @@ w: Get the cheat codes for a specific pokemon wild encounter.
 l: Get the cheat code for a specific wild encounter level.
 """
 
-import json
 from argparse import ArgumentParser
 
 from app.services.get_level_cheat import get_level_cheat
-from app.services.get_pokemon_cheats import get_pokemon_cheats
-from app.services.get_pokemon_encounter_cheat import get_pokemon_encounter_cheat
+from app.services.get_pokemon_cheats import get_pokemon_cheats_as_string
+from app.services.get_pokemon_encounter_cheat import (
+    get_pokemon_encounter_cheat_as_string,
+)
 
 parser = ArgumentParser(
     description="Get cheat codes for pokemons and wild encounters."
@@ -49,17 +50,19 @@ def main():
 
     if args.pokemon:
         try:
-            cheats = get_pokemon_cheats(args.pokemon)
+            cheats = get_pokemon_cheats_as_string(args.pokemon)
             print(f"All cheat codes for pokemon '{args.pokemon}':")
-            print(json.dumps(cheats, indent=2))
+            print(cheats)
         except ValueError as e:
             print(e)
 
     elif args.wild_encounter:
         try:
-            cheat_codes = get_pokemon_encounter_cheat(args.wild_encounter)
+            cheat_codes = get_pokemon_encounter_cheat_as_string(
+                args.wild_encounter
+            )
             print(f"Cheat codes to encounter pokemon '{args.wild_encounter}':")
-            print(json.dumps(cheat_codes, indent=2))
+            print(cheat_codes)
         except ValueError as e:
             print(e)
 
@@ -67,7 +70,7 @@ def main():
         try:
             cheat_code = get_level_cheat(args.level)
             print(f"Cheat code for wild encounter level {args.level}:")
-            print(json.dumps(cheat_code, indent=2))
+            print(cheat_code)
         except ValueError as e:
             print(e)
 
