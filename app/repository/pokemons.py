@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.models.pokemons import Pokemons
 from app.schemas.pokemons import PokemonRead
@@ -34,7 +35,11 @@ class PokemonsRepository:
 
     @staticmethod
     def read_by_id(db: Session, pokemon_id: int) -> Optional[PokemonReadFull]:
-        stmt = select(Pokemons).filter(Pokemons.id == pokemon_id)
+        stmt = (
+            select(Pokemons)
+            .options(selectinload(Pokemons.wild_encounters))
+            .filter(Pokemons.id == pokemon_id)
+        )
         pokemon = db.execute(stmt).scalars().first()
 
         if pokemon:
@@ -44,7 +49,11 @@ class PokemonsRepository:
 
     @staticmethod
     def read_by_name(db: Session, name: str) -> Optional[PokemonReadFull]:
-        stmt = select(Pokemons).where(Pokemons.name.like(f"{name}%"))
+        stmt = (
+            select(Pokemons)
+            .options(selectinload(Pokemons.wild_encounters))
+            .filter(Pokemons.name == name)
+        )
         pokemon = db.execute(stmt).scalars().first()
 
         if pokemon:
@@ -54,7 +63,11 @@ class PokemonsRepository:
 
     @staticmethod
     def read_by_name_fragment(db: Session, name: str) -> list[PokemonReadFull]:
-        stmt = select(Pokemons).where(Pokemons.name.like(f"{name}%"))
+        stmt = (
+            select(Pokemons)
+            .options(selectinload(Pokemons.wild_encounters))
+            .where(Pokemons.name.like(f"{name}%"))
+        )
         pokemons = db.execute(stmt).scalars().all()
 
         return [PokemonReadFull.model_validate(pokemon) for pokemon in pokemons]
